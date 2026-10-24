@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>سينما شادية | Shadia's Cinema - من إعداد قيس جازي</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Amiri & Cairo & Cinzel -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700;800&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --gold-light: #fde68a;
+      --gold-main: #d4af37;
+      --gold-deep: #996515;
+      --velvet-red: #5c0616;
+      --velvet-dark: #260208;
+      --bloom-color: rgba(251, 191, 36, 0.38);
+      --rim-opacity: 0.42;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #040306;
+      font-family: 'Cairo', sans-serif;
+      color: #f8fafc;
+    }
+
+    .font-amiri {
+      font-family: 'Amiri', serif;
+    }
+
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
+    }
+
+    /* Outer Desktop Wrapper to keep strict 9:16 mobile aesthetic on large screens while 100% full screen on phones */
+    .cinema-viewport {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 25%, #16111d 0%, #09070c 55%, #030204 100%);
+      box-shadow: 0 0 80px rgba(0, 0, 0, 0.95);
+    }
+
+    /* Ambient Room Lights On/Off State */
+    .cinema-viewport.lights-on {
+      background: radial-gradient(ellipse at 50% 28%, #2e1924 0%, #170d14 55%, #090508 100%);
+    }
+
+    .wall-sconce {
+      transition: opacity 0.8s ease, filter 0.8s ease;
+      opacity: 0.18;
+    }
+    .cinema-viewport.lights-on .wall-sconce {
+      opacity: 0.85;
+    }
+
+    /* Luxury Gold Gradient Text */
+    .gold-text {
+      background: linear-gradient(135deg, #fff6d6 0%, #f5d061 35%, #d4af37 65%, #9a6f1a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 10px rgba(212, 175, 55, 0.25));
+    }
+
+    .gold-border-glow {
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.18), inset 0 0 15px rgba(212, 175, 55, 0.08);
+    }
+
+    /* Theater Velvet Curtains */
+    .curtain-panel {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 52%;
+      z-index: 65;
+      transition: transform 1.8s cubic-bezier(0.65, 0, 0.15, 1), filter 1.8s ease;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #3b040e 0px,
+          #6b091b 18px,
+          #4a0512 36px,
+          #240107 54px,
+          #5e0717 72px
+        );
+      box-shadow: inset 0 -40px 80px rgba(0, 0, 0, 0.85), 0 0 40px rgba(0, 0, 0, 0.9);
+    }
+
+    .curtain-left {
+      left: 0;
+      border-right: 3px solid rgba(212, 175, 55, 0.65);
+      transform-origin: top left;
+    }
+
+    .curtain-right {
+      right: 0;
+      border-left: 3px solid rgba(212, 175, 55, 0.65);
+      transform-origin: top right;
+    }
+
+    /* Parted state when entering cinema */
+    .curtains-open .curtain-left {
+      transform: translateX(-88%) scaleX(0.62) skewX(-3deg);
+    }
+
+    .curtains-open .curtain-right {
+      transform: translateX(88%) scaleX(0.62) skewX(3deg);
+    }
+
+    /* Top Velvet Valance (Drape Header) */
+    .curtain-valance {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 46px;
+      z-index: 66;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          #2c0209 0px,
+          #5c0616 14px,
+          #38030c 28px
+        );
+      border-bottom: 2px solid #d4af37;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.85);
+      border-bottom-left-radius: 50% 16px;
+      border-bottom-right-radius: 50% 16px;
+      pointer-events: none;
+    }
+
+    /* Projector Volumetric Light Beam */
+    .projector-beam {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      height: 68%;
+      pointer-events: none;
+      z-index: 12;
+      background: conic-gradient(
+        from 152deg at 50% 0%,
+        transparent 0deg,
+        rgba(253, 230, 138, 0.03) 12deg,
+        rgba(255, 247, 214, 0.14) 28deg,
+        rgba(253, 230, 138, 0.03) 44deg,
+        transparent 56deg
+      );
+      filter: blur(8px);
+      mix-blend-mode: screen;
+      animation: beamFlicker 5s infinite alternate ease-in-out;
+    }
+
+    .projector-beam.playing-active {
+      background: conic-gradient(
+        from 150deg at 50% 0%,
+        transparent 0deg,
+        rgba(253, 224, 71, 0.06) 10deg,
+        rgba(255, 250, 225, 0.24) 28deg,
+        rgba(251, 113, 133, 0.09) 42deg,
+        transparent 58deg
+      );
+    }
+
+    @keyframes beamFlicker {
+      0% { opacity: 0.72; transform: translateX(-50%) scaleX(0.98); }
+      50% { opacity: 0.95; transform: translateX(-50%) scaleX(1.02); }
+      100% { opacity: 0.78; transform: translateX(-50%) scaleX(1); }
+    }
+
+    /* Curved Cinema Screen Container - Optimized for both Vertical (9:16) & Horizontal Videos */
+    .cinema-screen-wrapper {
+      position: relative;
+      width: 88%;
+      margin: 0 auto;
+      z-index: 25;
+      perspective: 900px;
+    }
+
+    .cinema-screen-frame {
+      position: relative;
+      width: 100%;
+      height: 46dvh;
+      max-height: 430px;
+      min-height: 270px;
+      border-radius: 24px / 14px;
+      background: #050508;
+      padding: 4px;
+      border: 1.5px solid rgba(212, 175, 55, 0.55);
+      box-shadow:
+        0 0 50px var(--bloom-color),
+        0 18px 50px rgba(0, 0, 0, 0.95),
+        inset 0 0 18px rgba(255, 255, 255, 0.08);
+      transition: box-shadow 0.6s ease, border-color 0.6s ease;
+    }
+
+    /* Subtle top & bottom curved cinema screen illusion */
+    .cinema-screen-frame::before,
+    .cinema-screen-frame::after {
+      content: '';
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      height: 8px;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .cinema-screen-frame::before {
+      top: -4px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.45), transparent 75%);
+    }
+
+    .cinema-screen-frame::after {
+      bottom: -5px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, var(--bloom-color), transparent 75%);
+      filter: blur(4px);
+    }
+
+    .cinema-screen-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 20px / 11px;
+      overflow: hidden;
+      background: #07050a;
+    }
+
+    /* Screen Gloss / Scanline subtle texture */
+    .screen-reflection-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 15;
+      background:
+        linear-gradient(125deg, rgba(255, 255, 255, 0.05) 0%, transparent 38%, transparent 70%, rgba(212, 175, 55, 0.04) 100%);
+    }
+
+    /* Vintage Countdown Circle */
+    .vintage-leader {
+      background:
+        radial-gradient(circle, rgba(212, 175, 55, 0.14) 0%, rgba(12, 10, 14, 0.96) 72%);
+    }
+
+    .radar-sweep {
+      animation: sweepSpin 1s linear infinite;
+      transform-origin: center;
+    }
+
+    @keyframes sweepSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Enter Button Pulse */
+    .btn-gold-glow {
+      background: linear-gradient(135deg, #b8860b 0%, #f5d061 50%, #b8860b 100%);
+      background-size: 200% auto;
+      color: #1a080c;
+      box-shadow: 0 0 28px rgba(245, 208, 97, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+      animation: shimmerGold 3.5s linear infinite;
+    }
+
+    @keyframes shimmerGold {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* Lovers Silhouette Rim Light Reflection */
+    .silhouette-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      pointer-events: none;
+      transition: filter 0.5s ease;
+      filter: drop-shadow(0 -5px 14px rgba(251, 191, 36, var(--rim-opacity)));
+    }
+
+    .rim-stroke {
+      opacity: var(--rim-opacity);
+      transition: opacity 0.4s ease;
+    }
+
+    /* Custom Range Slider for Video Progress */
+    input[type="range"].cinema-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].cinema-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #f5d061;
+      box-shadow: 0 0 10px rgba(245, 208, 97, 0.9);
+      cursor: pointer;
+    }
+
+    /* Subtle Film Scratch Animation on Intro */
+    @keyframes pulseSlow {
+      0%, 100% { transform: scale(1); opacity: 0.92; }
+      50% { transform: scale(1.04); opacity: 1; }
+    }
+    .animate-pulse-slow {
+      animation: pulseSlow 3.2s ease-in-out infinite;
+    }
+
+    /* Dramatic Title Reveal Animation on Screen */
+    @keyframes revealScaleGlow {
+      0% { opacity: 0; transform: scale(0.88); filter: blur(6px); }
+      30% { opacity: 1; transform: scale(1); filter: blur(0px); }
+      80% { opacity: 1; transform: scale(1.03); filter: blur(0px); }
+      100% { opacity: 0; transform: scale(1.08); filter: blur(8px); }
+    }
+    .animate-screen-quote {
+      animation: revealScaleGlow 3.6s ease-in-out forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Main 9:16 Vertical Smartphone Cinema Container -->
+  <main id="cinemaApp" class="cinema-viewport flex flex-col justify-between select-none">
+
+    <!-- Top Velvet Theater Valance -->
+    <div class="curtain-valance flex items-center justify-center">
+      <div class="px-4 py-0.5 rounded-full bg-black/55 border border-amber-400/35 text-[10px] tracking-widest text-amber-200/90 font-amiri">
+        ✦ أنا شايفك بعيوني الدنيا كلها ✦
+      </div>
+    </div>
+
+    <!-- Left & Right Luxury Velvet Curtains -->
+    <div id="curtainLeft" class="curtain-panel curtain-left"></div>
+    <div id="curtainRight" class="curtain-panel curtain-right"></div>
+
+    <!-- ==========================================
+         1. CINEMATIC OPENING INTRO & COUNTDOWN
+         ========================================== -->
+    <section id="introOverlay" class="absolute inset-0 z-[70] flex flex-col items-center justify-between px-5 py-10 text-center transition-opacity duration-1000 bg-gradient-to-b from-black/85 via-[#180409]/92 to-black/95 backdrop-blur-sm">
+
+      <!-- Top Ornamental Emblem -->
+      <div class="mt-3 flex flex-col items-center space-y-1">
+        <div class="flex items-center space-x-2 space-x-reverse text-amber-400/80 text-xs tracking-widest">
+          <span>✦</span>
+          <span class="font-cinzel uppercase tracking-[0.25em] text-[10px]">Shadia's Private Cinema</span>
+          <span>✦</span>
+        </div>
+        <div class="w-24 h-[1px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent"></div>
+      </div>
+
+      <!-- Center Production Card OR Vintage Countdown -->
+      <div id="productionCard" class="w-full max-w-xs my-auto py-6 px-5 rounded-3xl bg-black/60 gold-border-glow backdrop-blur-md relative overflow-hidden transition-all duration-500">
+        <!-- Corner Golden Accents -->
+        <span class="absolute top-2.5 right-3 text-amber-400/50 text-xs">❖</span>
+        <span class="absolute top-2.5 left-3 text-amber-400/50 text-xs">❖</span>
+        <span class="absolute bottom-2.5 right-3 text-amber-400/50 text-xs">❖</span>
+        <span class="absolute bottom-2.5 left-3 text-amber-400/50 text-xs">❖</span>
+
+        <!-- Vintage Reel Icon -->
+        <div class="mx-auto mb-3 w-14 h-14 rounded-full border border-amber-400/45 bg-amber-500/10 flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.28)] animate-pulse-slow">
+          <svg class="w-7 h-7 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="2.5" />
+            <circle cx="12" cy="6.5" r="1.2" fill="currentColor" />
+            <circle cx="12" cy="17.5" r="1.2" fill="currentColor" />
+            <circle cx="6.5" cy="12" r="1.2" fill="currentColor" />
+            <circle cx="17.5" cy="12" r="1.2" fill="currentColor" />
+          </svg>
+        </div>
+
+        <p class="text-[10px] font-cinzel tracking-[0.28em] text-amber-200/75 uppercase mb-1">
+          Shadia's Cinema
+        </p>
+
+        <h1 class="font-amiri text-4xl font-bold gold-text leading-tight mb-3">
+          سينما شادية
+        </h1>
+
+        <!-- Main Requested Romantic Message Box -->
+        <div class="py-2.5 px-3 rounded-2xl bg-gradient-to-r from-amber-500/10 via-rose-500/15 to-amber-500/10 border border-amber-300/35 mb-4 shadow-inner">
+          <p class="font-amiri text-xl font-bold text-amber-100 leading-snug drop-shadow">
+            "أنا شايفك بعيوني الدنيا كلها"
+          </p>
+        </div>
+
+        <!-- Divider -->
+        <div class="flex items-center justify-center gap-2 mb-3">
+          <div class="h-[1px] w-12 bg-gradient-to-l from-amber-400/60 to-transparent"></div>
+          <span class="text-rose-400 text-xs">♥</span>
+          <div class="h-[1px] w-12 bg-gradient-to-r from-amber-400/60 to-transparent"></div>
+        </div>
+
+        <!-- Golden Signature Badge: من إعداد قيس جازي -->
+        <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500/15 via-amber-400/25 to-amber-500/15 border border-amber-300/40 shadow-inner">
+          <span class="text-amber-300 text-xs">♛</span>
+          <span class="text-xs font-semibold text-amber-200 tracking-wide">من إعداد قيس جازي</span>
+        </div>
+
+        <!-- Enter Cinema Button (Starts Countdown -> Reveals Quote -> Plays Video & Song Immediately) -->
+        <div class="mt-5 space-y-2.5">
+          <button id="enterCinemaBtn" class="w-full py-3.5 px-6 rounded-2xl font-bold text-sm btn-gold-glow transition-transform active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer">
+            <span>دخول القاعة وبدء عرضنا</span>
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+            </svg>
+          </button>
+
+          <!-- One-Time Video Pre-Link Button (Saves to IndexedDB so it plays automatically!) -->
+          <button id="prelinkVideoIntroBtn" class="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 border border-amber-300/25 text-[11px] text-amber-200/85 flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+            <span id="prelinkStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="prelinkBtnLabel">🎬 الفيديو والأغنية جاهزان للعرض التلقائي</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vintage 3.. 2.. 1.. Countdown View (Hidden until Enter is clicked) -->
+      <div id="countdownBox" class="hidden my-auto flex-col items-center justify-center">
+        <div class="relative w-48 h-48 rounded-full vintage-leader border-2 border-amber-400/60 flex items-center justify-center shadow-[0_0_60px_rgba(212,175,55,0.3)] overflow-hidden">
+          <!-- Crosshair lines -->
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="w-full h-[1px] bg-amber-300/30"></div>
+          </div>
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="h-full w-[1px] bg-amber-300/30"></div>
+          </div>
+          <!-- Inner ring -->
+          <div class="w-32 h-32 rounded-full border border-amber-300/40 absolute"></div>
+          <!-- Sweep arm -->
+          <div class="w-1/2 h-1/2 absolute top-0 left-1/2 origin-bottom-left bg-gradient-to-tr from-amber-400/30 to-transparent radar-sweep"></div>
+          <!-- Countdown Number -->
+          <span id="countdownNumber" class="font-cinzel text-7xl font-bold gold-text z-10">3</span>
+        </div>
+        <p class="mt-4 text-base text-amber-100 font-amiri font-bold">
+          "أنا شايفك بعيوني الدنيا كلها"
+        </p>
+        <p class="mt-1 text-xs text-amber-200/75 tracking-wide">
+          يبدأ الآن عرض الفيديو الخاص بنا...
+        </p>
+      </div>
+
+      <!-- Bottom Intro Footer -->
+      <div class="text-[11px] text-amber-200/60 flex flex-col items-center gap-0.5">
+        <span>عرض خاص وحصري لعيون شادية</span>
+        <span class="text-[10px] text-amber-400/50">من إعداد قيس جازي ♥</span>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         2. FLOATING ROMANTIC PARTICLES & PROJECTOR
+         ========================================== -->
+    <canvas id="particlesCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+    <!-- Top Projector Lens & Volumetric Light Beam -->
+    <div class="absolute top-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center pointer-events-none">
+      <div class="w-6 h-3 rounded-b-full bg-amber-100/90 shadow-[0_0_25px_8px_rgba(253,230,138,0.85)]"></div>
+    </div>
+    <div id="projectorBeam" class="projector-beam playing-active"></div>
+
+    <!-- Left & Right Wall Sconces (Ambient Hall Lamps) -->
+    <div class="wall-sconce absolute top-1/3 left-2 z-10 pointer-events-none flex flex-col items-center">
+      <div class="w-2.5 h-8 rounded-full bg-amber-300/80 blur-[2px] shadow-[0_0_28px_10px_rgba(245,158,11,0.65)]"></div>
+      <div class="w-1.5 h-4 bg-amber-700/80 rounded-b"></div>
+    </div>
+    <div class="wall-sconce absolute top-1/3 right-2 z-10 pointer-events-none flex flex-col items-center">
+      <div class="w-2.5 h-8 rounded-full bg-amber-300/80 blur-[2px] shadow-[0_0_28px_10px_rgba(245,158,11,0.65)]"></div>
+      <div class="w-1.5 h-4 bg-amber-700/80 rounded-b"></div>
+    </div>
+
+
+    <!-- ==========================================
+         3. MAIN HALL HEADER & SCREEN AREA
+         ========================================== -->
+    <header class="relative z-30 pt-12 px-4 flex items-center justify-between">
+      <!-- Hall Title & Signature -->
+      <div class="flex flex-col">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+          <h2 class="font-amiri text-lg font-bold gold-text leading-none">سينما شادية</h2>
+        </div>
+        <span class="text-[10px] text-amber-200/75 mt-0.5">من إعداد قيس جازي</span>
+      </div>
+
+      <!-- Top Quick Action Buttons: Fit/Fill Screen, Lights Toggle & Dedication Note -->
+      <div class="flex items-center gap-1.5">
+        <button id="toggleFitBtn" class="px-2 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-amber-400/30 text-[10px] text-amber-200 flex items-center gap-1 backdrop-blur-md transition active:scale-95 cursor-pointer" title="تغيير أبعاد الفيديو">
+          <span>📐</span>
+          <span id="fitBtnText">ملء الشاشة</span>
+        </button>
+
+        <button id="toggleLightsBtn" class="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-amber-400/30 text-[10px] text-amber-200 flex items-center gap-1 backdrop-blur-md transition active:scale-95 cursor-pointer" title="إطفاء / تشغيل الأضواء">
+          <span id="lightIcon">💡</span>
+          <span id="lightBtnText">الأضواء</span>
+        </button>
+
+        <button id="openDedicationBtn" class="p-1.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/40 text-rose-200 text-xs backdrop-blur-md transition active:scale-95 cursor-pointer" title="رسالة لعيونك">
+          💌
+        </button>
+      </div>
+    </header>
+
+    <!-- THE CURVED THEATER SCREEN & VIDEO PLAYER -->
+    <section class="relative z-30 flex-1 flex flex-col justify-start items-center px-2 pt-1.5">
+
+      <!-- Glowing Romantic Marquee Above the Cinema Screen -->
+      <div class="mb-1.5 px-4 py-1 rounded-full bg-gradient-to-r from-amber-500/15 via-rose-500/20 to-amber-500/15 border border-amber-300/40 shadow-[0_0_20px_rgba(212,175,55,0.25)] flex items-center gap-2">
+        <span class="text-rose-400 text-xs">♥</span>
+        <p class="font-amiri text-sm sm:text-base font-bold gold-text tracking-wide">
+          أنا شايفك بعيوني الدنيا كلها
+        </p>
+        <span class="text-rose-400 text-xs">♥</span>
+      </div>
+
+      <!-- Hidden File Input for Picking Video from Phone Storage -->
+      <input id="videoFileInput" type="file" accept="video/*" class="hidden" />
+
+      <div class="cinema-screen-wrapper">
+        <!-- Curved Screen Frame with Dynamic Bloom -->
+        <div id="screenFrame" class="cinema-screen-frame">
+          <div class="cinema-screen-inner flex items-center justify-center">
+
+            <!-- Fallback Romantic Animated Canvas (Plays when no video is loaded yet) -->
+            <canvas id="romanticFallbackCanvas" class="w-full h-full object-cover"></canvas>
+
+            <!-- HTML5 Video Element for Their Special Video -->
+            <video
+              id="memoryVideo"
+              src="video.mp4"
+              class="hidden w-full h-full object-cover bg-black transition-all duration-300"
+              playsinline
+              webkit-playsinline
+              loop
+              preload="auto"
+            ></video>
+
+            <!-- Background Romantic Song (جلست اناظرك مارف لي جفن تقل مسحور) -->
+            <audio
+              id="bgSong"
+              src="song.webm"
+              preload="auto"
+              loop
+            ></audio>
+
+            <!-- Dramatic On-Screen Prologue Reveal Overlay ("أنا شايفك بعيوني الدنيا كلها") right after Curtains Open -->
+            <div id="screenQuoteIntroOverlay" class="hidden absolute inset-0 z-30 flex-col items-center justify-center bg-gradient-to-b from-black/95 via-[#1c0610]/95 to-black/95 p-5 text-center pointer-events-none">
+              <div class="text-amber-300/80 text-xs tracking-widest mb-2">✦ إهداء خاص إلى شادية ✦</div>
+              <h2 class="font-amiri text-2xl sm:text-3xl font-bold gold-text leading-relaxed mb-2">
+                "أنا شايفك بعيوني الدنيا كلها"
+              </h2>
+              <div class="w-20 h-[1px] bg-gradient-to-r from-transparent via-amber-400 to-transparent my-2"></div>
+              <p class="font-amiri text-sm text-rose-200/90">من قيس جازي.. لعيونك ♥</p>
+            </div>
+
+            <!-- Screen Gloss Overlay -->
+            <div class="screen-reflection-overlay"></div>
+
+            <!-- Center Overlay Prompt to Select Their Video if not yet linked -->
+            <div id="uploadPromptOverlay" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/55 backdrop-blur-[2px] p-4 text-center transition-opacity duration-500">
+              <div class="px-3 py-0.5 rounded-full bg-amber-500/20 border border-amber-300/35 text-[10px] text-amber-200 mb-2">
+                ✦ العرض الخاص بنا ✦
+              </div>
+              <h3 class="font-amiri text-2xl font-bold gold-text mb-1">
+                "أنا شايفك بعيوني الدنيا كلها"
+              </h3>
+              <p class="text-[11px] text-slate-200/90 max-w-[250px] mb-3.5 leading-relaxed">
+                اضغط لاختيار فيديو آخر من الهاتف إن رغبت، أو استمتع بالعرض الجاهز
+              </p>
+
+              <div class="flex flex-wrap items-center justify-center gap-2">
+                <button id="pickVideoMainBtn" class="px-4 py-2.5 rounded-xl btn-gold-glow font-bold text-xs flex items-center gap-1.5 shadow-lg transition transform active:scale-95 cursor-pointer">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <span>تشغيل فيديو آخر 🎬</span>
+                </button>
+
+                <button id="watchDefaultReelBtn" class="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-[11px] text-amber-100 transition active:scale-95 cursor-pointer">
+                  بدء العرض
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Minimalist Custom Cinema Controls Bar (Below Screen, Above Silhouette) -->
+      <div class="w-[88%] mt-2 px-3 py-2 rounded-2xl bg-black/70 border border-amber-500/30 backdrop-blur-md shadow-xl flex flex-col gap-1.5 z-30">
+
+        <!-- Interactive Progress Bar & Timestamps -->
+        <div class="flex items-center gap-2">
+          <span id="currentTimeLabel" class="text-[10px] font-mono text-amber-200/80 w-8 text-left">00:00</span>
+          <input
+            id="progressBar"
+            type="range"
+            min="0"
+            max="100"
+            value="0"
+            step="0.1"
+            class="cinema-slider flex-1"
+          />
+          <span id="durationLabel" class="text-[10px] font-mono text-amber-200/80 w-8 text-right">00:18</span>
+        </div>
+
+        <!-- Control Buttons Row -->
+        <div class="flex items-center justify-between">
+          <!-- Right side (RTL): Play/Pause, Mute/Unmute & Title -->
+          <div class="flex items-center gap-1.5">
+            <!-- Play / Pause -->
+            <button id="playPauseBtn" class="w-7 h-7 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/40 flex items-center justify-center text-amber-200 transition active:scale-90 cursor-pointer" title="تشغيل / إيقاف">
+              <svg id="playIcon" class="w-3.5 h-3.5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+              </svg>
+              <svg id="pauseIcon" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </button>
+
+            <!-- Mute / Unmute -->
+            <button id="muteBtn" class="w-7 h-7 rounded-xl bg-white/5 hover:bg-white/15 border border-white/15 flex items-center justify-center text-amber-100 transition active:scale-90 cursor-pointer" title="كتم / تشغيل الصوت">
+              <svg id="volumeOnIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+              </svg>
+              <svg id="volumeOffIcon" class="w-3.5 h-3.5 hidden text-rose-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              </svg>
+            </button>
+
+            <!-- Now Playing Status Badge -->
+            <span id="videoStatusTitle" class="text-[10px] text-amber-100/85 truncate max-w-[115px] font-semibold">
+              أنا شايفك بعيوني الدنيا كلها ♥
+            </span>
+          </div>
+
+          <!-- Left side (RTL): Upload/Change Video & Fullscreen -->
+          <div class="flex items-center gap-1.5">
+            <button id="changeVideoBarBtn" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-[10px] font-semibold text-amber-200 flex items-center gap-1 transition active:scale-95 cursor-pointer">
+              <span>🎬</span>
+              <span>تغيير الفيديو</span>
+            </button>
+
+            <button id="fullscreenBtn" class="w-7 h-7 rounded-xl bg-white/5 hover:bg-white/15 border border-white/15 flex items-center justify-center text-amber-100 transition active:scale-90 cursor-pointer" title="ملء الشاشة">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Romantic Dedication Ticker below controls -->
+      <div class="mt-1.5 text-center z-30 pointer-events-none">
+        <p id="romanticQuoteTicker" class="font-amiri text-xs text-amber-200/85 italic transition-opacity duration-700">
+          "أنا شايفك بعيوني الدنيا كلها.. يا أغلى ما في عمري يا شادية"
+        </p>
+      </div>
+    </section>
+
+
+    <!-- ==========================================
+         4. FOREGROUND LAYER: THE LOVERS SILHOUETTE
+         (pointer-events: none, z-index: 40)
+         ========================================== -->
+    <div id="loversSilhouette" class="silhouette-container">
+      <svg viewBox="0 0 500 230" class="w-full h-auto block" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Screen light bounce rim gradient -->
+          <linearGradient id="screenRimGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#fde68a" stop-opacity="0.1" />
+            <stop offset="35%" stop-color="#fde68a" stop-opacity="0.85" />
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.95" />
+            <stop offset="65%" stop-color="#fb7185" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#fde68a" stop-opacity="0.1" />
+          </linearGradient>
+
+          <!-- Velvet seat subtle back shadow -->
+          <linearGradient id="seatFill" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#0d070a" />
+            <stop offset="35%" stop-color="#050305" />
+            <stop offset="100%" stop-color="#000000" />
+          </linearGradient>
+        </defs>
+
+        <!-- Back Row Empty Velvet Cinema Seats (Left & Right Flanking Seats) -->
+        <path d="M-20,230 L-20,145 Q-5,120 35,122 Q72,124 82,150 L82,230 Z" fill="#070406" />
+        <path d="M418,230 L418,150 Q428,124 465,122 Q505,120 520,145 L520,230 Z" fill="#070406" />
+
+        <!-- Rim Light on Flanking Seats -->
+        <path class="rim-stroke" d="M-15,142 Q35,118 80,146" fill="none" stroke="url(#screenRimGlow)" stroke-width="1.5" />
+        <path class="rim-stroke" d="M420,146 Q465,118 515,142" fill="none" stroke="url(#screenRimGlow)" stroke-width="1.5" />
+
+        <!-- Center Double Loveseat Velvet Backrests -->
+        <path d="M88,230 L88,136 Q105,108 168,108 Q225,108 248,132 Q272,108 332,108 Q395,108 412,136 L412,230 Z" fill="url(#seatFill)" />
+
+        <!-- Rim Light on Center Loveseat Shoulders -->
+        <path class="rim-stroke" d="M92,134 Q145,106 205,114" fill="none" stroke="url(#screenRimGlow)" stroke-width="2" />
+        <path class="rim-stroke" d="M300,114 Q355,106 408,134" fill="none" stroke="url(#screenRimGlow)" stroke-width="2" />
+
+        <!-- ========================================
+             THE TWO LOVERS SILHOUETTE (Back View)
+             Him (Left/Center-Left) & Shadia (Right/Center-Right leaning her head gently on his shoulder)
+             ======================================== -->
+
+        <!-- HIS SILHOUETTE (Head, Neck, Broad Shoulders wrapping around her) -->
+        <path d="
+          M 132,230
+          L 140,148
+          C 145,118 172,105 204,103
+          L 206,90
+          C 194,82 190,62 194,42
+          C 198,22 215,12 232,15
+          C 250,18 260,33 257,54
+          C 255,69 248,82 242,91
+          L 245,102
+          C 272,105 292,118 302,145
+          L 310,230
+          Z
+        " fill="#030203" />
+
+        <!-- HER SILHOUETTE (Shadia - Head gently leaning on his right shoulder, flowing hair) -->
+        <path d="
+          M 222,230
+          L 230,145
+          C 236,120 250,108 272,106
+          C 256,95 250,76 254,56
+          C 258,36 276,25 295,29
+          C 314,33 328,50 332,74
+          C 336,96 344,116 354,132
+          C 365,148 372,175 376,230
+          Z
+        " fill="#020102" />
+
+        <!-- Extra Hair Locks & Soft Romantic Details on Her Silhouette -->
+        <path d="
+          M 326,58
+          Q 344,82 348,115
+          Q 352,138 342,155
+        " fill="none" stroke="#020102" stroke-width="10" stroke-linecap="round" />
+
+        <!-- DYNAMIC RIM LIGHT BOUNCE ON THEIR HEADS & SHOULDERS (Simulating Cinema Screen Reflection) -->
+        <!-- His Head & Left Shoulder Rim Light -->
+        <path class="rim-stroke" d="
+          M 144,138
+          C 152,115 176,104 202,102
+          M 195,46
+          C 199,23 215,13 233,15
+          C 246,17 255,26 257,39
+        " fill="none" stroke="url(#screenRimGlow)" stroke-width="2.4" stroke-linecap="round" />
+
+        <!-- Her Head (Leaning on his shoulder) & Flowing Hair Rim Light -->
+        <path class="rim-stroke" d="
+          M 256,50
+          C 262,34 278,26 296,30
+          C 314,34 327,50 332,74
+          C 336,94 344,112 355,129
+        " fill="none" stroke="url(#screenRimGlow)" stroke-width="2.4" stroke-linecap="round" />
+
+        <!-- Subtle Tiny Glowing Heart Floating Between Their Crowns -->
+        <path class="rim-stroke" d="M261,16 C261,13 257,11 255,14 C253,11 249,13 249,16 C249,20 255,23 255,25 C255,23 261,20 261,16 Z" fill="#fb7185" opacity="0.65" />
+
+        <!-- Bottom Foreground Darkness Grounding Bar -->
+        <rect x="0" y="212" width="500" height="20" fill="#000000" />
+      </svg>
+
+      <!-- Subtle Signature Credit Integrated at the Bottom Center of the Velvet Seats -->
+      <div class="absolute bottom-1.5 inset-x-0 text-center pointer-events-none">
+        <span class="text-[10px] tracking-widest text-amber-300/40 font-amiri">
+          ✦ سينما شادية الخاصة • من إعداد قيس جازي ✦
+        </span>
+      </div>
+    </div>
+
+
+    <!-- ==========================================
+         5. DEDICATION MODAL ("رسالة خاصة إلى شادية")
+         ========================================== -->
+    <div id="dedicationModal" class="hidden absolute inset-0 z-[80] bg-black/80 backdrop-blur-md flex items-center justify-center p-6">
+      <div class="w-full max-w-xs rounded-3xl bg-gradient-to-b from-[#1e0710] to-[#0a0407] gold-border-glow p-6 text-center relative shadow-2xl">
+        <button id="closeDedicationBtn" class="absolute top-3.5 left-3.5 w-7 h-7 rounded-full bg-white/10 text-amber-200 text-xs flex items-center justify-center hover:bg-white/20 cursor-pointer">
+          ✕
+        </button>
+
+        <div class="text-2xl mb-2">👑</div>
+        <h3 class="font-amiri text-2xl font-bold gold-text mb-2">
+          إلى شادية.. دنيتي كلها
+        </h3>
+        <div class="py-2 px-3 rounded-2xl bg-amber-500/10 border border-amber-300/30 mb-3">
+          <p class="font-amiri text-lg font-bold text-amber-200">
+            "أنا شايفك بعيوني الدنيا كلها"
+          </p>
+        </div>
+        <p class="font-amiri text-sm text-amber-100/90 leading-relaxed mb-4">
+          "كل نظرة لعيونك تختصر الدنيا وما فيها.. صنعتُ لكِ هذه القاعة الخاصة ليبقى أجمل فيديو يجمعنا مضيئاً أمامنا دائماً."
+        </p>
+
+        <div class="py-1.5 px-4 rounded-full bg-amber-500/15 border border-amber-400/35 inline-block mb-4">
+          <span class="text-xs font-semibold text-amber-200">من إعداد قيس جازي ♥</span>
+        </div>
+
+        <div>
+          <button id="replayIntroBtn" class="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-amber-300/30 text-xs text-amber-200 transition cursor-pointer">
+            🎬 إعادة مشهد الافتتاح والعرض من البداية
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==========================================
+       APPLICATION JAVASCRIPT
+       ========================================== -->
+  <script>
+    (function () {
+      // DOM Elements
+      const cinemaApp = document.getElementById('cinemaApp');
+      const introOverlay = document.getElementById('introOverlay');
+      const productionCard = document.getElementById('productionCard');
+      const countdownBox = document.getElementById('countdownBox');
+      const countdownNumber = document.getElementById('countdownNumber');
+      const enterCinemaBtn = document.getElementById('enterCinemaBtn');
+      const prelinkVideoIntroBtn = document.getElementById('prelinkVideoIntroBtn');
+      const prelinkBtnLabel = document.getElementById('prelinkBtnLabel');
+      const prelinkStatusDot = document.getElementById('prelinkStatusDot');
+
+      const projectorBeam = document.getElementById('projectorBeam');
+      const screenFrame = document.getElementById('screenFrame');
+      const uploadPromptOverlay = document.getElementById('uploadPromptOverlay');
+      const screenQuoteIntroOverlay = document.getElementById('screenQuoteIntroOverlay');
+
+      const videoFileInput = document.getElementById('videoFileInput');
+      const pickVideoMainBtn = document.getElementById('pickVideoMainBtn');
+      const changeVideoBarBtn = document.getElementById('changeVideoBarBtn');
+      const watchDefaultReelBtn = document.getElementById('watchDefaultReelBtn');
+
+      const memoryVideo = document.getElementById('memoryVideo');
+      const bgSong = document.getElementById('bgSong');
+      const fallbackCanvas = document.getElementById('romanticFallbackCanvas');
+      const fallbackCtx = fallbackCanvas.getContext('2d');
+
+      const playPauseBtn = document.getElementById('playPauseBtn');
+      const playIcon = document.getElementById('playIcon');
+      const pauseIcon = document.getElementById('pauseIcon');
+      const muteBtn = document.getElementById('muteBtn');
+      const volumeOnIcon = document.getElementById('volumeOnIcon');
+      const volumeOffIcon = document.getElementById('volumeOffIcon');
+      const progressBar = document.getElementById('progressBar');
+      const currentTimeLabel = document.getElementById('currentTimeLabel');
+      const durationLabel = document.getElementById('durationLabel');
+      const videoStatusTitle = document.getElementById('videoStatusTitle');
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+
+      const toggleFitBtn = document.getElementById('toggleFitBtn');
+      const fitBtnText = document.getElementById('fitBtnText');
+      const toggleLightsBtn = document.getElementById('toggleLightsBtn');
+      const lightBtnText = document.getElementById('lightBtnText');
+      const lightIcon = document.getElementById('lightIcon');
+
+      const openDedicationBtn = document.getElementById('openDedicationBtn');
+      const closeDedicationBtn = document.getElementById('closeDedicationBtn');
+      const dedicationModal = document.getElementById('dedicationModal');
+      const replayIntroBtn = document.getElementById('replayIntroBtn');
+      const romanticQuoteTicker = document.getElementById('romanticQuoteTicker');
+
+      // State
+      let isUsingCustomVideo = false;
+      let isPlaying = true;
+      let isMuted = false;
+      let isVideoCover = true;
+      let currentObjectURL = null;
+      let fallbackTime = 0;
+      const fallbackDuration = 18;
+      let audioCtx = null;
+
+      // Romantic Quotes Ticker Data centered around "أنا شايفك بعيوني الدنيا كلها"
+      const romanticQuotes = [
+        '"أنا شايفك بعيوني الدنيا كلها.. يا أغلى ما في عمري يا شادية"',
+        '"كل مشهدٍ في حياتي يزداد جمالاً لأنكِ بطلة حكايتي يا شادية"',
+        '"أنا شايفك بعيوني الدنيا كلها • من إعداد قيس جازي ♥"',
+        '"بجانبكِ فقط، تبدو الحياة كفيلمٍ سينمائي لا أريده أن ينتهي"'
+      ];
+      let quoteIndex = 0;
+
+      setInterval(() => {
+        quoteIndex = (quoteIndex + 1) % romanticQuotes.length;
+        romanticQuoteTicker.style.opacity = '0';
+        setTimeout(() => {
+          romanticQuoteTicker.textContent = romanticQuotes[quoteIndex];
+          romanticQuoteTicker.style.opacity = '1';
+        }, 600);
+      }, 5500);
+
+      // ==========================================
+      // INDEXED-DB PERSISTENT VIDEO STORAGE
+      // ==========================================
+      const DB_NAME = 'ShadiaCinemaDB';
+      const STORE_NAME = 'videos';
+      const VIDEO_KEY = 'our_special_video';
+
+      function openVideoDB() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(DB_NAME, 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME);
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async function saveVideoToDB(fileBlob) {
+        try {
+          const db = await openVideoDB();
+          const tx = db.transaction(STORE_NAME, 'readwrite');
+          tx.objectStore(STORE_NAME).put(fileBlob, VIDEO_KEY);
+        } catch (err) {
+          // Ignore quota issues if any
+        }
+      }
+
+      async function loadVideoFromDB() {
+        try {
+          const db = await openVideoDB();
+          return new Promise((resolve) => {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const req = tx.objectStore(STORE_NAME).get(VIDEO_KEY);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => resolve(null);
+          });
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function activateCustomVideoBlob(blob) {
+        if (!blob) return;
+        if (currentObjectURL) {
+          URL.revokeObjectURL(currentObjectURL);
+        }
+        currentObjectURL = URL.createObjectURL(blob);
+        isUsingCustomVideo = true;
+
+        fallbackCanvas.classList.add('hidden');
+        uploadPromptOverlay.classList.add('opacity-0', 'pointer-events-none');
+        memoryVideo.classList.remove('hidden');
+
+        memoryVideo.src = currentObjectURL;
+        memoryVideo.load();
+
+        videoStatusTitle.textContent = 'أنا شايفك بعيوني الدنيا كلها ♥';
+
+        prelinkBtnLabel.textContent = '✅ الفيديو والأغنية جاهزان للعرض التلقائي';
+        if (prelinkStatusDot) {
+          prelinkStatusDot.classList.remove('bg-amber-400');
+          prelinkStatusDot.classList.add('bg-emerald-400');
+        }
+      }
+
+      function activateDefaultVideo() {
+        if (isUsingCustomVideo) return;
+        isUsingCustomVideo = true;
+        fallbackCanvas.classList.add('hidden');
+        uploadPromptOverlay.classList.add('opacity-0', 'pointer-events-none');
+        memoryVideo.classList.remove('hidden');
+        prelinkBtnLabel.textContent = '✅ الفيديو والأغنية جاهزان للعرض التلقائي';
+        if (prelinkStatusDot) {
+          prelinkStatusDot.classList.remove('bg-amber-400');
+          prelinkStatusDot.classList.add('bg-emerald-400');
+        }
+      }
+
+      // Check on startup if a saved video exists in IndexedDB or if video.mp4 is available
+      window.addEventListener('DOMContentLoaded', async () => {
+        const cachedBlob = await loadVideoFromDB();
+        if (cachedBlob) {
+          activateCustomVideoBlob(cachedBlob);
+        } else {
+          if (memoryVideo.readyState >= 1) {
+            activateDefaultVideo();
+          } else {
+            memoryVideo.addEventListener('loadedmetadata', activateDefaultVideo, { once: true });
+            memoryVideo.addEventListener('loadeddata', activateDefaultVideo, { once: true });
+            memoryVideo.addEventListener('canplay', activateDefaultVideo, { once: true });
+          }
+        }
+      });
+
+      // Also trigger check immediately in case video is already cached/ready
+      if (memoryVideo.readyState >= 1) {
+        activateDefaultVideo();
+      }
+
+      // Web Audio API Vintage Beep for Countdown
+      function playCountdownTone(freq = 880, duration = 0.12) {
+        try {
+          if (!audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioContextClass) audioCtx = new AudioContextClass();
+          }
+          if (!audioCtx) return;
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+          gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch (err) {
+          // Ignore
+        }
+      }
+
+      // ==========================================
+      // 1. CINEMATIC INTRO -> QUOTE REVEAL -> AUTO PLAY
+      // ==========================================
+      function playScreenQuoteThenStartVideo() {
+        screenQuoteIntroOverlay.classList.remove('hidden');
+        screenQuoteIntroOverlay.classList.add('flex', 'animate-screen-quote');
+
+        // Play video
+        if (isUsingCustomVideo) {
+          memoryVideo.currentTime = 0;
+          memoryVideo.muted = isMuted;
+          memoryVideo.play().then(() => {
+            isPlaying = true;
+            syncPlayPauseIcons();
+          }).catch(() => {
+            memoryVideo.muted = true;
+            isMuted = true;
+            volumeOnIcon.classList.add('hidden');
+            volumeOffIcon.classList.remove('hidden');
+            memoryVideo.play().catch(() => {});
+          });
+        } else {
+          isPlaying = true;
+          syncPlayPauseIcons();
+        }
+
+        // Play background song in sync
+        if (bgSong) {
+          bgSong.currentTime = 0;
+          bgSong.muted = isMuted;
+          bgSong.play().catch(() => {});
+        }
+
+        setTimeout(() => {
+          screenQuoteIntroOverlay.classList.add('hidden');
+          screenQuoteIntroOverlay.classList.remove('flex', 'animate-screen-quote');
+        }, 3500);
+      }
+
+      function startCinemaIntroTransition() {
+        // Unlock video and audio on user gesture
+        if (isUsingCustomVideo || memoryVideo.src) {
+          memoryVideo.play().then(() => {
+            memoryVideo.pause();
+            memoryVideo.currentTime = 0;
+          }).catch(() => {});
+        }
+        if (bgSong) {
+          bgSong.play().then(() => {
+            bgSong.pause();
+            bgSong.currentTime = 0;
+          }).catch(() => {});
+        }
+
+        productionCard.classList.add('hidden');
+        countdownBox.classList.remove('hidden');
+        countdownBox.classList.add('flex');
+
+        let count = 3;
+        countdownNumber.textContent = count;
+        playCountdownTone(740, 0.14);
+
+        const timer = setInterval(() => {
+          count--;
+          if (count > 0) {
+            countdownNumber.textContent = count;
+            playCountdownTone(740, 0.14);
+          } else {
+            clearInterval(timer);
+            playCountdownTone(1100, 0.32);
+
+            // Part the Velvet Theater Curtains smoothly
+            cinemaApp.classList.add('curtains-open');
+
+            // Fade out the intro overlay
+            introOverlay.style.opacity = '0';
+            introOverlay.style.pointerEvents = 'none';
+
+            // Trigger quote reveal and play video + song
+            playScreenQuoteThenStartVideo();
+
+            setTimeout(() => {
+              introOverlay.classList.add('hidden');
+            }, 1000);
+          }
+        }, 850);
+      }
+
+      enterCinemaBtn.addEventListener('click', startCinemaIntroTransition);
+
+      replayIntroBtn.addEventListener('click', () => {
+        dedicationModal.classList.add('hidden');
+        if (isUsingCustomVideo) {
+          memoryVideo.pause();
+        }
+        if (bgSong) {
+          bgSong.pause();
+        }
+        cinemaApp.classList.remove('curtains-open');
+        productionCard.classList.remove('hidden');
+        countdownBox.classList.add('hidden');
+        countdownBox.classList.remove('flex');
+        introOverlay.classList.remove('hidden');
+        void introOverlay.offsetWidth;
+        introOverlay.style.opacity = '1';
+        introOverlay.style.pointerEvents = 'auto';
+      });
+
+      // ==========================================
+      // 2. FALLBACK ROMANTIC REEL ON SCREEN CANVAS
+      // ==========================================
+      function resizeFallbackCanvas() {
+        fallbackCanvas.width = 480;
+        fallbackCanvas.height = 640;
+      }
+      resizeFallbackCanvas();
+
+      const screenStars = Array.from({ length: 45 }, () => ({
+        x: Math.random() * 480,
+        y: Math.random() * 640,
+        r: Math.random() * 1.9 + 0.5,
+        alpha: Math.random(),
+        speed: Math.random() * 0.35 + 0.12
+      }));
+
+      function renderFallbackReel() {
+        if (!isUsingCustomVideo) {
+          if (isPlaying) {
+            fallbackTime = (fallbackTime + 1 / 60) % fallbackDuration;
+            updateProgressUI(fallbackTime, fallbackDuration);
+          }
+
+          const grad = fallbackCtx.createRadialGradient(240, 300, 20, 240, 300, 380);
+          grad.addColorStop(0, '#38091f');
+          grad.addColorStop(0.55, '#160617');
+          grad.addColorStop(1, '#050208');
+          fallbackCtx.fillStyle = grad;
+          fallbackCtx.fillRect(0, 0, 480, 640);
+
+          screenStars.forEach(s => {
+            if (isPlaying) {
+              s.y -= s.speed;
+              if (s.y < 0) s.y = 640;
+            }
+            fallbackCtx.save();
+            fallbackCtx.globalAlpha = 0.35 + 0.55 * Math.sin(fallbackTime * 3 + s.x);
+            fallbackCtx.fillStyle = '#fde68a';
+            fallbackCtx.beginPath();
+            fallbackCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+            fallbackCtx.fill();
+            fallbackCtx.restore();
+          });
+
+          fallbackCtx.strokeStyle = 'rgba(212, 175, 55, 0.32)';
+          fallbackCtx.lineWidth = 1.5;
+          fallbackCtx.strokeRect(22, 22, 436, 596);
+
+          fallbackCtx.save();
+          fallbackCtx.textAlign = 'center';
+
+          fallbackCtx.fillStyle = 'rgba(253, 230, 138, 0.95)';
+          fallbackCtx.font = 'bold 30px Amiri, serif';
+          fallbackCtx.fillText('✦ سينما شادية الخاصة ✦', 240, 240);
+
+          fallbackCtx.fillStyle = '#ffffff';
+          fallbackCtx.font = 'bold 28px Amiri, serif';
+          fallbackCtx.fillText('"أنا شايفك بعيوني الدنيا كلها"', 240, 305);
+
+          fallbackCtx.fillStyle = 'rgba(251, 113, 133, 0.9)';
+          fallbackCtx.font = '18px Cairo, sans-serif';
+          fallbackCtx.fillText('♥ من إعداد قيس جازي ♥', 240, 365);
+
+          fallbackCtx.restore();
+
+          updateScreenBloomAndRim(isPlaying ? (0.38 + 0.14 * Math.sin(fallbackTime * 4)) : 0.15);
+        }
+
+        requestAnimationFrame(renderFallbackReel);
+      }
+      requestAnimationFrame(renderFallbackReel);
+
+      // ==========================================
+      // 3. CUSTOM VIDEO UPLOAD & CONTROLS
+      // ==========================================
+      function triggerFilePicker() {
+        videoFileInput.click();
+      }
+
+      prelinkVideoIntroBtn.addEventListener('click', triggerFilePicker);
+      pickVideoMainBtn.addEventListener('click', triggerFilePicker);
+      changeVideoBarBtn.addEventListener('click', triggerFilePicker);
+
+      watchDefaultReelBtn.addEventListener('click', () => {
+        uploadPromptOverlay.classList.add('opacity-0', 'pointer-events-none');
+        isPlaying = true;
+        syncPlayPauseIcons();
+      });
+
+      videoFileInput.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        await saveVideoToDB(file);
+        activateCustomVideoBlob(file);
+
+        if (introOverlay.classList.contains('hidden') || introOverlay.style.opacity === '0') {
+          playScreenQuoteThenStartVideo();
+        }
+      });
+
+      toggleFitBtn.addEventListener('click', () => {
+        isVideoCover = !isVideoCover;
+        if (isVideoCover) {
+          memoryVideo.classList.remove('object-contain');
+          memoryVideo.classList.add('object-cover');
+          fitBtnText.textContent = 'ملء الشاشة';
+        } else {
+          memoryVideo.classList.remove('object-cover');
+          memoryVideo.classList.add('object-contain');
+          fitBtnText.textContent = 'احتواء كامل';
+        }
+      });
+
+      function formatTime(sec) {
+        if (!isFinite(sec) || sec < 0) return '00:00';
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      function updateProgressUI(current, total) {
+        currentTimeLabel.textContent = formatTime(current);
+        durationLabel.textContent = formatTime(total);
+        const pct = total > 0 ? (current / total) * 100 : 0;
+        progressBar.value = pct;
+      }
+
+      function updateScreenBloomAndRim(intensity) {
+        const clamped = Math.max(0.14, Math.min(0.8, intensity));
+        document.documentElement.style.setProperty('--rim-opacity', clamped.toFixed(2));
+        document.documentElement.style.setProperty(
+          '--bloom-color',
+          `rgba(251, 191, 36, ${(clamped * 0.85).toFixed(2)})`
+        );
+      }
+
+      memoryVideo.addEventListener('loadedmetadata', () => {
+        updateProgressUI(0, memoryVideo.duration || 0);
+      });
+
+      memoryVideo.addEventListener('timeupdate', () => {
+        if (!isUsingCustomVideo) return;
+        updateProgressUI(memoryVideo.currentTime, memoryVideo.duration || 0);
+        const pulse = 0.42 + 0.18 * Math.abs(Math.sin(memoryVideo.currentTime * 3.5));
+        updateScreenBloomAndRim(pulse);
+      });
+
+      memoryVideo.addEventListener('play', () => {
+        isPlaying = true;
+        projectorBeam.classList.add('playing-active');
+        syncPlayPauseIcons();
+        if (bgSong && bgSong.paused) {
+          bgSong.play().catch(() => {});
+        }
+      });
+
+      memoryVideo.addEventListener('pause', () => {
+        isPlaying = false;
+        projectorBeam.classList.remove('playing-active');
+        updateScreenBloomAndRim(0.18);
+        syncPlayPauseIcons();
+        if (bgSong && !bgSong.paused) {
+          bgSong.pause();
+        }
+      });
+
+      function togglePlayPause() {
+        if (isUsingCustomVideo) {
+          if (memoryVideo.paused) {
+            memoryVideo.play().catch(() => {});
+            if (bgSong) bgSong.play().catch(() => {});
+          } else {
+            memoryVideo.pause();
+            if (bgSong) bgSong.pause();
+          }
+        } else {
+          isPlaying = !isPlaying;
+          projectorBeam.classList.toggle('playing-active', isPlaying);
+          syncPlayPauseIcons();
+          if (bgSong) {
+            if (isPlaying) bgSong.play().catch(() => {});
+            else bgSong.pause();
+          }
+        }
+      }
+
+      function syncPlayPauseIcons() {
+        if (isPlaying) {
+          playIcon.classList.add('hidden');
+          pauseIcon.classList.remove('hidden');
+        } else {
+          playIcon.classList.remove('hidden');
+          pauseIcon.classList.add('hidden');
+        }
+      }
+
+      playPauseBtn.addEventListener('click', togglePlayPause);
+
+      memoryVideo.addEventListener('click', togglePlayPause);
+      fallbackCanvas.addEventListener('click', () => {
+        if (uploadPromptOverlay.classList.contains('opacity-0')) {
+          togglePlayPause();
+        }
+      });
+
+      muteBtn.addEventListener('click', () => {
+        isMuted = !isMuted;
+        memoryVideo.muted = isMuted;
+        if (bgSong) bgSong.muted = isMuted;
+        volumeOnIcon.classList.toggle('hidden', isMuted);
+        volumeOffIcon.classList.toggle('hidden', !isMuted);
+      });
+
+      progressBar.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value);
+        if (isUsingCustomVideo && memoryVideo.duration) {
+          memoryVideo.currentTime = (val / 100) * memoryVideo.duration;
+          if (bgSong && bgSong.duration) {
+            bgSong.currentTime = memoryVideo.currentTime % bgSong.duration;
+          }
+        } else {
+          fallbackTime = (val / 100) * fallbackDuration;
+          updateProgressUI(fallbackTime, fallbackDuration);
+        }
+      });
+
+      fullscreenBtn.addEventListener('click', () => {
+        const target = isUsingCustomVideo ? memoryVideo : screenFrame;
+        if (target.requestFullscreen) {
+          target.requestFullscreen();
+        } else if (target.webkitEnterFullscreen) {
+          target.webkitEnterFullscreen();
+        } else if (target.webkitRequestFullscreen) {
+          target.webkitRequestFullscreen();
+        }
+      });
+
+      // ==========================================
+      // 4. AMBIENT HALL LIGHTING & DEDICATION MODAL
+      // ==========================================
+      let lightsOn = false;
+      toggleLightsBtn.addEventListener('click', () => {
+        lightsOn = !lightsOn;
+        cinemaApp.classList.toggle('lights-on', lightsOn);
+        if (lightsOn) {
+          lightBtnText.textContent = 'إطفاء';
+          lightIcon.textContent = '🌙';
+        } else {
+          lightBtnText.textContent = 'الأضواء';
+          lightIcon.textContent = '💡';
+        }
+      });
+
+      openDedicationBtn.addEventListener('click', () => {
+        dedicationModal.classList.remove('hidden');
+      });
+
+      closeDedicationBtn.addEventListener('click', () => {
+        dedicationModal.classList.add('hidden');
+      });
+
+      dedicationModal.addEventListener('click', (e) => {
+        if (e.target === dedicationModal) {
+          dedicationModal.classList.add('hidden');
+        }
+      });
+
+      // ==========================================
+      // 5. FLOATING ROMANTIC PARTICLES
+      // ==========================================
+      const pCanvas = document.getElementById('particlesCanvas');
+      const pCtx = pCanvas.getContext('2d');
+      let pWidth = 0;
+      let pHeight = 0;
+
+      function resizeParticlesCanvas() {
+        const rect = cinemaApp.getBoundingClientRect();
+        pWidth = pCanvas.width = rect.width;
+        pHeight = pCanvas.height = rect.height;
+      }
+      window.addEventListener('resize', resizeParticlesCanvas);
+      resizeParticlesCanvas();
+
+      const particles = Array.from({ length: 28 }, (_, i) => ({
+        x: Math.random() * 420,
+        y: Math.random() * 800,
+        size: Math.random() * 2.5 + 1,
+        speedY: Math.random() * 0.35 + 0.12,
+        speedX: (Math.random() - 0.5) * 0.25,
+        alpha: Math.random() * 0.65 + 0.15,
+        isHeart: i % 5 === 0
+      }));
+
+      function drawTinyHeart(ctx, x, y, size) {
+        ctx.beginPath();
+        ctx.moveTo(x, y + size * 0.3);
+        ctx.bezierCurveTo(x, y, x - size, y, x - size, y + size * 0.6);
+        ctx.bezierCurveTo(x - size, y + size * 1.1, x, y + size * 1.4, x, y + size * 1.8);
+        ctx.bezierCurveTo(x, y + size * 1.4, x + size, y + size * 1.1, x + size, y + size * 0.6);
+        ctx.bezierCurveTo(x + size, y, x, y, x, y + size * 0.3);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function animateParticles() {
+        pCtx.clearRect(0, 0, pWidth, pHeight);
+
+        particles.forEach(p => {
+          p.y -= p.speedY;
+          p.x += p.speedX;
+
+          if (p.y < -10) {
+            p.y = pHeight + 10;
+            p.x = Math.random() * pWidth;
+          }
+          if (p.x < 0) p.x = pWidth;
+          if (p.x > pWidth) p.x = 0;
+
+          pCtx.save();
+          pCtx.globalAlpha = p.alpha;
+          if (p.isHeart) {
+            pCtx.fillStyle = '#fb7185';
+            drawTinyHeart(pCtx, p.x, p.y, p.size * 1.6);
+          } else {
+            pCtx.fillStyle = '#fde68a';
+            pCtx.shadowColor = '#f59e0b';
+            pCtx.shadowBlur = 6;
+            pCtx.beginPath();
+            pCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            pCtx.fill();
+          }
+          pCtx.restore();
+        });
+
+        requestAnimationFrame(animateParticles);
+      }
+      requestAnimationFrame(animateParticles);
+    })();
+  </script>
+</body>
+</html>
